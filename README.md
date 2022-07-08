@@ -73,63 +73,63 @@ In order to successfully complete this demo you need to install few tools before
 
 1. Log in to your cluster using the `confluent login` command using a Confluent Cloud user account.
 
-```
+```bash
 confluent login --save
 ```
 
 1. Create a new Confluent Cloud environment.
 
-```
+```bash
 confluent environment create Application-Modernization
 ```
 
 1. Switch to the Confluent Cloud environment you just created.
 
-```
+```bash
 confluent environment use <ID>
 ```
 
 1. Create a new Kafka cluster. Basic cluster is enough for this demo.
 
-```
+```bash
 confluent kafka cluster create cluster1 --cloud "aws" --region "us-west-2" --type "basic"
 ```
 
 1. Wait until the cluster is in `Running` state.
 1. Enable `Schema Registery` by running the following command.
 
-```
+```bash
 confluent schema-registry cluster enable --cloud aws --geo 'us'
 ```
 
 1. Create API key pair by running the following command.
 
-```
+```bash
 confluent api-key create --resource <KAFKA_CLUSTER_ID>
 ```
 
 1. To verify the correct API key pair is in use, run the following command. The results should match the API key that you just created in previous step.
 
-```
+```bash
 confluent api-key list --resource <KAFKA_CLUSTER_ID>
 ```
 
 1. Create a ksqlDB cluster by running the following command.
 
-```
+```bash
 confluent ksql cluster create ksqlDB_app1 --api-key <KAFKA_API_KEY> --api-secret <KAFKA_API_SECRET> --cluster <KAFKA_CLUSTER_ID>
 ```
 
 1. Wait until the ksqlDB cluster's status is changed from `Provisioning` to `Running`.
 1. Create an API key pair for the ksqlDB cluster.
 
-```
+```bash
 confluent api-key create --resource <KSQLDB_CLUSTER_ID>
 ```
 
 1. Create the necessary Kafka topics.
 
-```
+```bash
 confluent kafka topic create postgres.bank.transactions
 confluent kafka topic create postgres.bank.accounts
 confluent kafka topic create postgres.bank.customers
