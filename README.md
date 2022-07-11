@@ -612,7 +612,7 @@ Confluent gives you tools such as Stream Quality, Stream Catalog, and Stream Lin
 Stream lineage provides a graphical UI of the end to end flow of your data. Both from the a bird’s eye view and drill-down magnification for answering questions like: - Where did data come from? - Where is it going? - Where, when, and how was it transformed?
 In the bird's eye view you see how one stream feeds into another one. As your pipeline grows and becomes more complex, you can use Stream lineage to debug and see where things go wrong and break.
 <div align="center">
-   <img src="images/stream-lineage.png" width =100% heigth=100%>
+   <img src="images/stream_lineage.png" width =100% heigth=100%>
 </div>
 
 ### Build a real-time dashboard
@@ -627,6 +627,7 @@ In the bird's eye view you see how one stream feeds into another one. As your pi
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Elasticsearch connector is in `Running` state.
 1. Navigate to the Elastic website and verify `elastic_possible_stolen_card` exist.
+1. Below is an example of a dashboard that you can build.
 <div align="center">
     <img src="images/elastic_dashboard.png" width=100% height=100%>
 </div>
