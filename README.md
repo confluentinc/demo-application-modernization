@@ -177,8 +177,8 @@ To keep things simple, we will use `Kubernetes` to deploy both web servers and w
 <details>
     <summary><b>Without using Kubernetes</b></summary>
     
-    1. If you want to opt-out of using `Kubernetes` update the following files.
-    1. Create `monolith/.env` file with following configurations
+1. If you want to opt-out of using `Kubernetes` update the following files.
+1. Create `monolith/.env` file with following configurations
         ```bash
         PGUSER="postgres"
         PGHOST=<EC2_IP_FROM_TERRAFORM>
@@ -186,7 +186,7 @@ To keep things simple, we will use `Kubernetes` to deploy both web servers and w
         PGDATABASE="postgres"
         PGPORT="5432"
         ```
-    1. Create `microservices/.env` file with following configurations
+1. Create `microservices/.env` file with following configurations
         ```bash
         BOOTSTRAP_SERVERS=<BOOTSTRAP_SERVERS>
         CLIENT_KEY="<KAFKA_API_KEY>"
