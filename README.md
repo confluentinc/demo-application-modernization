@@ -179,29 +179,29 @@ To keep things simple, we will use `Kubernetes` to deploy both web servers and w
     
 1. If you want to opt-out of using `Kubernetes` update the following files.
 1. Create `monolith/.env` file with following configurations
-        ```bash
-        PGUSER="postgres"
-        PGHOST=<EC2_IP_FROM_TERRAFORM>
-        PGPASSWORD="app-mod-c0nflu3nt!"
-        PGDATABASE="postgres"
-        PGPORT="5432"
-        ```
+    ```bash
+    PGUSER="postgres"
+    PGHOST=<EC2_IP_FROM_TERRAFORM>
+    PGPASSWORD="app-mod-c0nflu3nt!"
+    PGDATABASE="postgres"
+    PGPORT="5432"
+    ```
 1. Create `microservices/.env` file with following configurations
-        ```bash
-        BOOTSTRAP_SERVERS=<BOOTSTRAP_SERVERS>
-        CLIENT_KEY="<KAFKA_API_KEY>"
-        CLIENT_SECRET="<KAFKA_API_SECRET>"
-        SASL_USERNAME="<KAFKA_API_KEY>"
-        SASL_PASSWORD="<KAFKA_API_SECRET>"
-        SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username='<KAFKA_API_KEY>' password='<KAFKA_API_SECRET>';"
-        SCHEMA_REGISTRY_API_KEY="<SCHEMA_REGISTRY_API_KEY>"
-        SCHEMA_REGISTRY_API_SECRET="<SCHEMA_REGISTRY_API_SECRET>"
-        SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO="<SCHEMA_REGISTRY_API_KEY>:<SCHEMA_REGISTRY_API_SECRET>"
-        SCHEMA_REGISTRY_URL=<SCHEMA_REGISTRY_URL>
-        KSQLDB_API_KEY="<KSQLDB_API_KEY>"
-        KSQLDB_API_SECRET="<KSQLDB_API_SECRET>"
-        KSQLDB_APP_ENDPOINT=<KSQLDB_APP_ENDPOINT>
-        ```
+    ```bash
+    BOOTSTRAP_SERVERS=<BOOTSTRAP_SERVERS>
+    CLIENT_KEY="<KAFKA_API_KEY>"
+    CLIENT_SECRET="<KAFKA_API_SECRET>"
+    SASL_USERNAME="<KAFKA_API_KEY>"
+    SASL_PASSWORD="<KAFKA_API_SECRET>"
+    SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username='<KAFKA_API_KEY>' password='<KAFKA_API_SECRET>';"
+    SCHEMA_REGISTRY_API_KEY="<SCHEMA_REGISTRY_API_KEY>"
+    SCHEMA_REGISTRY_API_SECRET="<SCHEMA_REGISTRY_API_SECRET>"
+    SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO="<SCHEMA_REGISTRY_API_KEY>:<SCHEMA_REGISTRY_API_SECRET>"
+    SCHEMA_REGISTRY_URL=<SCHEMA_REGISTRY_URL>
+    KSQLDB_API_KEY="<KSQLDB_API_KEY>"
+    KSQLDB_API_SECRET="<KSQLDB_API_SECRET>"
+    KSQLDB_APP_ENDPOINT=<KSQLDB_APP_ENDPOINT>
+    ```
     > **Note**: Be prepared to do some error handling. You might have to delete package-lock.json files and re-install node modules. 
 </details>
 
