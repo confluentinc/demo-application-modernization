@@ -603,6 +603,18 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
     SELECT * FROM elastic_possible_stolen_card;
    ```
 
+### Confluent Cloud Stream Lineage
+
+Confluent gives you tools such as Stream Quality, Stream Catalog, and Stream Lineage to ensure your data is high quality, observable and discoverable. Learn more about the **Stream Governance** [here](https://www.confluent.io/product/stream-governance/) and refer to the [docs](https://docs.confluent.io/cloud/current/stream-governance/overview.html) page for detailed information.
+
+1. Navigate to https://confluent.cloud
+1. Use the left hand-side menu and click on **Stream Lineage**.
+Stream lineage provides a graphical UI of the end to end flow of your data. Both from the a bird’s eye view and drill-down magnification for answering questions like: - Where did data come from? - Where is it going? - Where, when, and how was it transformed?
+In the bird's eye view you see how one stream feeds into another one. As your pipeline grows and becomes more complex, you can use Stream lineage to debug and see where things go wrong and break.
+<div align="center">
+   <img src="images/stream-lineage.png" width =100% heigth=100%>
+</div>
+
 ### Build a real-time dashboard
 
 1. Create a free account on [Elastic](https://www.elastic.co/).
@@ -615,3 +627,6 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Elasticsearch connector is in `Running` state.
 1. Navigate to the Elastic website and verify `elastic_possible_stolen_card` exist.
+<div align="center">
+    <img src="images/elastic_dashboard.png" width=100% height=100%>
+</div>
