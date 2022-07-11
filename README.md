@@ -175,7 +175,8 @@ confluent api-key create -o json --resource <SCHEMA_REGISTRY_CLUSTER_ID> --descr
 To keep things simple, we will use `Kubernetes` to deploy both web servers and web applications needed throughout the migration. However, you can opt-out of using `Kubernetes` and run the web servers and web applications locally.
 
 <details>
-    <summary>Without using Kubernetes</summary>
+    <summary><b>Without using Kubernetes</b></summary>
+    
     1. If you want to opt-out of using `Kubernetes` update the following files.
     1. Create `monolith/.env` file with following configurations
         ```bash
@@ -450,13 +451,13 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
 1. Create customer table from `fd_cust_raw_stream` which will hold the latest information for each customer.
    ```sql
    CREATE TABLE fd_customers WITH (FORMAT='AVRO') AS
-   SELECT customer_id AS customer_id,
-   LATEST_BY_OFFSET(first_name) AS first_name,
-   LATEST_BY_OFFSET(last_name) AS last_name,
-   LATEST_BY_OFFSET(phone_number) AS phone_number,
-   LATEST_BY_OFFSET(email_address) AS email_address
-   FROM fd_cust_raw_stream
-   GROUP BY customer_id;
+    SELECT customer_id AS customer_id,
+    LATEST_BY_OFFSET(first_name) AS first_name,
+    LATEST_BY_OFFSET(last_name) AS last_name,
+    LATEST_BY_OFFSET(phone_number) AS phone_number,
+    LATEST_BY_OFFSET(email_address) AS email_address
+    FROM fd_cust_raw_stream
+    GROUP BY customer_id;
    ```
 1. Verify the `fd_customers` table is populated correctly.
    ```sql
@@ -473,12 +474,12 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
 1. Create account table from `fd_acct_raw_stream` which will hold the latest information for each account.
    ```sql
    CREATE TABLE fd_accounts WITH (FORMAT='AVRO') AS
-   SELECT card_number AS card_number,
-   LATEST_BY_OFFSET(account_id) AS account_id,
-   LATEST_BY_OFFSET(customer_id) AS customer_id,
-   LATEST_BY_OFFSET(avg_spend) AS avg_spend
-   FROM fd_acct_raw_stream
-   GROUP BY card_number;
+    SELECT card_number AS card_number,
+    LATEST_BY_OFFSET(account_id) AS account_id,
+    LATEST_BY_OFFSET(customer_id) AS customer_id,
+    LATEST_BY_OFFSET(avg_spend) AS avg_spend
+    FROM fd_acct_raw_stream
+    GROUP BY card_number;
    ```
 1. Verify the `fd_accounts` table is populated correctly.
    ```sql
@@ -507,9 +508,9 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE STREAM jdbc_bank_transactions_rekeyed
    WITH (KAFKA_TOPIC='jdbc_bank_transactions_rekeyed',PARTITIONS=6, REPLICAS=3, VALUE_FORMAT='AVRO')
-   AS SELECT `card_number` as card_number, `transaction_id` as transaction_id, `transaction_amount` as transaction_amount, `transaction_time` as transaction_time
-   FROM jdbc_bank_transactions
-   PARTITION BY `card_number`
+    AS SELECT `card_number` as card_number, `transaction_id` as transaction_id, `transaction_amount` as transaction_amount, `transaction_time` as transaction_time
+    FROM jdbc_bank_transactions
+    PARTITION BY `card_number`
    EMIT CHANGES;
    ```
 1. Verify the `jdbc_bank_transactions_rekeyed` stream is populated correctly and then hit **Stop**.
@@ -517,25 +518,23 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
     SELECT * FROM jdbc_bank_transactions_rekeyed EMIT CHANGES;
    ```
 1. Now, we can join each transaction that is posted with customer's information and enrich our data.
+
    ```sql
    CREATE STREAM fd_transactions_enriched WITH (KAFKA_TOPIC = 'transactions_enriched' , KEY_FORMAT = 'JSON', VALUE_FORMAT='AVRO') AS
-   SELECT
-   T.CARD_NUMBER AS CARD_NUMBER,
-   T.TRANSACTION_ID,
-   T.TRANSACTION_AMOUNT,
-   T.TRANSACTION_TIME,
-   C.FULL_NAME,
-   C.PHONE_NUMBER,
-   C.EMAIL_ADDRESS,
-   C.AVG_SPEND
-   FROM jdbc_bank_transactions_rekeyed T
-   INNER JOIN fd_cust_acct C
-   ON C.CARD_NUMBER = T.CARD_NUMBER;
+    SELECT
+    T.CARD_NUMBER AS CARD_NUMBER,
+    T.TRANSACTION_ID,
+    T.TRANSACTION_AMOUNT,
+    T.TRANSACTION_TIME,
+    C.FULL_NAME,
+    C.PHONE_NUMBER,
+    C.EMAIL_ADDRESS,
+    C.AVG_SPEND
+    FROM jdbc_bank_transactions_rekeyed T
+    INNER JOIN fd_cust_acct C
+    ON C.CARD_NUMBER = T.CARD_NUMBER;
    ```
-1. Verify the `jdbc_bank_transactions_rekeyed` stream is populated correctly and then hit **Stop**.
-   ```sql
-    SELECT * FROM fd_transactions_enriched EMIT CHANGES;
-   ```
+
 1. Finally, we can aggregate the stream of transactions for each account ID using a two-hour tumbling window, and filter for accounts in which the total spend in a two-hour period is greater than the customer’s average:
    ```sql
    CREATE TABLE fd_possible_stolen_card WITH (KAFKA_TOPIC = 'FD_possible_stolen_card', KEY_FORMAT = 'JSON', VALUE_FORMAT='JSON') AS
@@ -554,35 +553,50 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    GROUP BY T.CARD_NUMBER, T.TRANSACTION_AMOUNT, T.FULL_NAME, T.EMAIL_ADDRESS, T.PHONE_NUMBER, T.TRANSACTION_TIME
    HAVING SUM(T.TRANSACTION_AMOUNT) > MAX(T.AVG_SPEND);
    ```
-1. Verify the `fd_possible_stolen_card` table is populated correctly.
+1. Navigate to the Online Banking application (http://localhost:80/) and insert more transactions
+
+   - card number: 5208-0272-3184-5035 amount: 20
+   - card number: 5188-6083-8011-0307 amount: 39
+   - card number: 5188-6083-8011-0307 amount: 561
+   - card number: 5588-6461-5550-9705 amount: 78
+   - card number: 5588-6461-5550-9705 amount: 142
+
+1. Navigate back to the ksqlDB editor in Confluent Cloud and see which activies have been flaged.
    ```sql
     SELECT * FROM fd_possible_stolen_card;
    ```
-1. The `fd_possible_stolen_card` is automatically updated to include a new suspicious acitivity. Which means there is no need for running a batch job to get the latest data. You can use the underlying Kafka topic as a source to downstream systems. For example, you can send this data to a MongoDB database so these acitivies can be stored for auditing purposes. You could also stream this data to Elasticsearch and build a real-time dashboard. We will send the data to Elasticsearch.
+1. In this example the following activies have been flagged
+
+   - card number: 5208-0272-3184-5035 amount: 20
+   - card number: 5588-6461-5550-9705 amount: 142
+   - card number: 5188-6083-8011-0307 amount: 561
+     > **Note**: You can run `SELECT * FROM fd_cust_acct;` and review the `avg_spend` field for each `card_number` to better understand which activities are being flagged.
+
+1. The `fd_possible_stolen_card` is automatically updated to include a new suspicious acitivity. Which means there is no need for running a batch job to get the latest data. You can use the underlying Kafka topic as a source to downstream systems. For example, you can send this data to a a database such as MongoDB so these acitivies can be stored for auditing purposes. You can also stream this data to an Elasticsearch cluster and build a real-time dashboard. We will send the data to Elasticsearch.
 1. The `fd_possible_stolen_card` has a composite key that includes `CARD_NUMBER`, `TRANSACTION_AMOUNT`, `FULL_NAME`, `EMAIL_ADDRESS`, `PHONE_NUMBER` and `TRANSACTION_TIME`. If we were to send this table to Elasticsearch these fields will be used as the `_id` field which is not aggregatable. Hence, we need to create a new table and add these fields as values too.
 1. Create a new table called `elastic_possible_stolen_card`.
    ```sql
    CREATE TABLE elastic_possible_stolen_card WITH (KAFKA_TOPIC = 'elastic_possible_stolen_card', KEY_FORMAT = 'JSON', VALUE_FORMAT='JSON') AS
-   SELECT
-   TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
-   T.TRANSACTION_TIME,
-   T.CARD_NUMBER,
-   T.TRANSACTION_AMOUNT,
-   T.FULL_NAME,
-   T.EMAIL_ADDRESS,
-   T.PHONE_NUMBER,
-   AS_VALUE(T.TRANSACTION_TIME) AS TRANSACTION_TIME_VALUE,
-   AS_VALUE(T.CARD_NUMBER) AS CARD_NUMBER_VALUE,
-   AS_VALUE(T.TRANSACTION_AMOUNT) AS TRANSACTION_AMOUNT_VALUE,
-   AS_VALUE(T.FULL_NAME) AS FULL_NAME_VALUE,
-   AS_VALUE(T.EMAIL_ADDRESS) AS EMAIL_ADDRESS_VALUE,
-   AS_VALUE(T.PHONE_NUMBER) AS PHONE_NUMBER_VALUE,
-   SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
-   MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
-   FROM fd_transactions_enriched T
-   WINDOW TUMBLING (SIZE 2 HOURS)
-   GROUP BY T.CARD_NUMBER, T.TRANSACTION_AMOUNT, T.FULL_NAME, T.EMAIL_ADDRESS, T.PHONE_NUMBER, T.TRANSACTION_TIME
-   HAVING SUM(T.TRANSACTION_AMOUNT) > MAX(T.AVG_SPEND);
+    SELECT
+    TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
+    T.TRANSACTION_TIME,
+    T.CARD_NUMBER,
+    T.TRANSACTION_AMOUNT,
+    T.FULL_NAME,
+    T.EMAIL_ADDRESS,
+    T.PHONE_NUMBER,
+    AS_VALUE(T.TRANSACTION_TIME) AS TRANSACTION_TIME_VALUE,
+    AS_VALUE(T.CARD_NUMBER) AS CARD_NUMBER_VALUE,
+    AS_VALUE(T.TRANSACTION_AMOUNT) AS TRANSACTION_AMOUNT_VALUE,
+    AS_VALUE(T.FULL_NAME) AS FULL_NAME_VALUE,
+    AS_VALUE(T.EMAIL_ADDRESS) AS EMAIL_ADDRESS_VALUE,
+    AS_VALUE(T.PHONE_NUMBER) AS PHONE_NUMBER_VALUE,
+    SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
+    MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
+    FROM fd_transactions_enriched T
+    WINDOW TUMBLING (SIZE 2 HOURS)
+    GROUP BY T.CARD_NUMBER, T.TRANSACTION_AMOUNT, T.FULL_NAME, T.EMAIL_ADDRESS, T.PHONE_NUMBER, T.TRANSACTION_TIME
+    HAVING SUM(T.TRANSACTION_AMOUNT) > MAX(T.AVG_SPEND);
    ```
 1. Verify the `elastic_possible_stolen_card` table is populated correctly.
    ```sql
