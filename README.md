@@ -125,6 +125,8 @@ In order to successfully complete this demo you need to install few tools before
 
 ### Build the cloud infrastructure
 
+> **Note**: If your organization uses `gimme-aws-creds` for authentication purposes, run `gimme-aws-creds` command before calling `Terraform`.
+
 1. Navigate to the repo's `Terraform` directory.
    ```bash
    cd terraform
