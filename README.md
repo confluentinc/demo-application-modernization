@@ -44,33 +44,6 @@ In order to successfully complete this demo you need to install few tools before
    cd demo-application-modernization
    ```
 
-1. Create a file to manage all the values you'll need through the setup.
-
-   ```bash
-   cat << EOF > env.sh
-   # Confluent Creds
-   export BOOTSTRAP_SERVERS="<replace>"
-   export CLIENT_KEY="<replace>"
-   export CLIENT_SECRET="<replace>"
-   export SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username='$CLIENT_KEY' password='$CLIENT_SECRET';"
-   export SCHEMA_REGISTRY_API_KEY="<replace>"
-   export SCHEMA_REGISTRY_API_SECRET="<replace>"
-   export SCHEMA_REGISTRY_URL="<replace>"
-   export SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO="$SCHEMA_REGISTRY_API_KEY:$SCHEMA_REGISTRY_API_SECRET"
-   export KSQLDB_API_KEY="<replace>"
-   export KSQLDB_API_SECRET="<replace>"
-   export KSQLDB_APP_ENDPOINT="<replace>"
-
-   # AWS Creds for TF
-   export AWS_ACCESS_KEY_ID="<replace>"
-   export AWS_SECRET_ACCESS_KEY="<replace>"
-   export AWS_DEFAULT_REGION="us-east-2" # You can change this, but make sure it's consistent
-
-   EOF
-   ```
-
-   > **Note:** _Run `source env.sh` at any time to update these values in your terminal session. Do NOT commit this file to a GitHub repo._
-
 1. Open a `Terminal` window and run the following commands to set up your Confluent Cloud infrastructure.
 
 1. Log in to your cluster using the `confluent login` command using a Confluent Cloud user account.
