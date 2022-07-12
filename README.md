@@ -407,7 +407,7 @@ In real world this process is much more tedious and there are more consideration
 
 ## Building new use cases with Confluent Cloud and ksqlDB
 
-Now that you have set your data in motion with Confluent Cloud, you can build real-time applications which would have been nearly impossible before. For example, in order to be able to detect an unusual activity on a customer's credit card we need to have real-time access to transactions and their spending habits. Let's leverage the Detect Unusual Credit Card Activity [recipe](https://developer.confluent.io/tutorials/credit-card-activity/confluent.html) to build this capability with Confluent Cloud and ksqlDB.
+Now that you have set your data in motion with Confluent Cloud, you can build real-time applications which would have been nearly impossible before. For example, in order to be able to detect an unusual activity on a customer's credit card we need to have real-time access to transactions and each customer's spending habits. Let's leverage the Detect Unusual Credit Card Activity [recipe](https://developer.confluent.io/tutorials/credit-card-activity/confluent.html) to build this capability with Confluent Cloud and ksqlDB.
 
 1. Create customer stream from `postgres.bank.customers`.
 
