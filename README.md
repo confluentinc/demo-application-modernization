@@ -35,7 +35,7 @@ In order to successfully complete this demo you need to install few tools before
 
 ### Confluent Cloud
 
-> **Note**: Ensure each step is completed successfully before proceeding to the next one.
+> **Note**: Ensure each step is completed successfully before proceeding to the next one. You can use [Confluent Cloud UI](confluent.cloud) to verify the completion of each step.
 
 1. Clone and enter this repo.
 
@@ -73,9 +73,9 @@ In order to successfully complete this demo you need to install few tools before
 1. Wait until the cluster is in `Running` state.
 1. Switch to the cluster you just created by running the following command.
 
-```bash
-confluent kafka cluster use <CLUSTER_ID>
-```
+   ```bash
+   confluent kafka cluster use <CLUSTER_ID>
+   ```
 
 1. Enable `Schema Registery` by running the following command.
 
@@ -85,11 +85,11 @@ confluent kafka cluster use <CLUSTER_ID>
 
 1. Create API key pair for `Schema Registery` by running the following command.
 
-```bash
-confluent api-key create -o json --resource <SCHEMA_REGISTRY_CLUSTER_ID> --description "API Keys for Application Modernization Schema Registry" | jq -c '.'
-```
+   ```bash
+   confluent api-key create -o json --resource <SCHEMA_REGISTRY_CLUSTER_ID> --description "API Keys for Application Modernization Schema Registry" | jq -c '.'
+   ```
 
-1. Create API key pair by running the following command.
+1. Create API key pair for `Kafka` cluster by running the following command.
 
    ```bash
    confluent api-key create -o json --resource <KAFKA_CLUSTER_ID> --description "API Keys for Application Modernization Kafka Clients" | jq -c '.'
@@ -108,13 +108,13 @@ confluent api-key create -o json --resource <SCHEMA_REGISTRY_CLUSTER_ID> --descr
    ```
 
 1. Wait until the ksqlDB cluster's status is changed from `Provisioning` to `Running`.
-1. Create an API key pair for the ksqlDB cluster.
+1. Create an API key pair for the `ksqlDB` cluster.
 
    ```bash
    confluent api-key create -o json --resource <KSQLDB_CLUSTER_ID>
    ```
 
-1. Create the necessary Kafka topics.
+1. Create the necessary `Kafka` topics.
 
    ```bash
    confluent kafka topic create postgres.bank.transactions
@@ -141,7 +141,7 @@ confluent api-key create -o json --resource <SCHEMA_REGISTRY_CLUSTER_ID> --descr
    ```bash
    terraform apply
    ```
-1. The `terraform apply` command will print the public IP addresses of the host EC2 instances for your Postgres service. You'll need these later to configuring the source connector.
+1. The `terraform apply` command will print the public IP addresses of the host EC2 instances for your Postgres service. You'll need this later to configuring the source connector.
 
 ### Web server and web applications
 
@@ -203,9 +203,9 @@ To keep things simple, we will use `Kubernetes` to deploy both web servers and w
    value: "<EC2_IP_FROM_TERRAFORM>"
    ```
 
-### Running the demo
+## Running the demo
 
-The following steps with bring you through the process of "Modernizing" the provided application using Confluent Cloud and Kafka. Use the following simple diagram to capture the basic flow (not everything is depicted).
+The following steps will bring you through the process of "Modernizing" the provided application using Confluent Cloud and `Kafka`. Use the following simple diagram to capture the basic flow (not everything is depicted).
 
 <div align="center">
     <img src="images/phase-flow.png" width=100% height=100%>
@@ -255,7 +255,9 @@ Now that you have deployed all the components for your "monolith", you can go to
 
 1. Update the `connectors/postgres_source.json` file to include the correct credentials.
 1. Launch a Postgres source connector to connect your database with Confluent Cloud.
-   `bash confluent connect create --config connectors/postgres_source.json `
+   ```bash
+   confluent connect create --config connectors/postgres_source.json
+   ```
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Postgres connector is in `Running` state.
 1. Verify `postgres.bank.accounts` and `postgres.bank.customers` topics are populated either through `CLI` or Confluent Cloud web UI.
@@ -271,7 +273,7 @@ Now that you have deployed all the components for your "monolith", you can go to
 
 ### Create ksqlDB queries
 
-The "microservice" in this demo will consume messages from Kafka by querying a ksqlDB table. In order to do that, you'll need to create them first.
+The "microservice" in this demo will consume messages from `Kafka` by querying a `ksqlDB` table. In order to do that, you'll need to create them first.
 
 1. Navigate to Confluent Cloud web UI and then go to ksqlDB cluster.
 1. Change `auto.offset.reset = earliest`.
@@ -284,7 +286,7 @@ The "microservice" in this demo will consume messages from Kafka by querying a k
    ```sql
    SELECT * FROM postgres_bank_transactions EMIT CHANGES;
    ```
-1. Create a new table for the balances of each card by selecting from the stream you just created.
+1. Create a new table for the balances of each card by reading from `postgres_bank_transactions` stream you just created.
    ```sql
    CREATE TABLE balances WITH (kafka_topic='balances') AS
        SELECT card_number, SUM(transaction_amount) AS balance
@@ -299,7 +301,7 @@ The "microservice" in this demo will consume messages from Kafka by querying a k
 
 ### Deploy the "microservice"
 
-1. Back on the command line, use `kubectl` to create and deploy the "microservice".
+1. Back on the `Terminal`, use `kubectl` to create and deploy the "microservice".
 
    - Create the "microservice" deployment.
      ```bash
@@ -318,17 +320,17 @@ The "microservice" in this demo will consume messages from Kafka by querying a k
      kubectl delete -f k8s/webapp-deployment-mf1.yaml
      ```
    - Create the web application deployment for "mf2".
-     ```
-     bash kubectl create -f k8s/webapp-deployment-mf2.yaml
+     ```bash
+     kubectl create -f k8s/webapp-deployment-mf2.yaml
      ```
      There's probably a better way to do this, but I'm no Kubernetes administrator 😇 .
-     > **Note**: If you aren't using `Kubernetes` open a new `Terminal` window and navigate to `webapp-mf1` and run `npm stop`. Then go to `webapp-mf2` and run `npm start`. The web browser should automatically refresh with the updated version of the front end application.
+     > **Note**: If you aren't using `Kubernetes` open a new `Terminal` window and navigate to `webapp-mf1` directory and run `npm stop`. Then go to `webapp-mf2` directory and run `npm start`. The web browser should automatically refresh with the updated version of the frontend application.
 
 Now that the new version of the web application has been deployed. Head back to the web browser and test out creating new transactions and getting balances. If everything went as expected, the user interaction in the front end shouldn't have changed.
 
 ### Add ksqlDB format conversion
 
-Since the data from our nodejs "microservice" won't have a schema (the `node-rdkafka` library doesn't currently have a support for this, but there are some out there), you'll want to convert the messages that will be produced to Kafka from the "microservice" to a new topic where the messages will have a given schema. This is pretty simple to do with ksqlDB.
+Since the data from our nodejs "microservice" won't have a schema (the `node-rdkafka` library doesn't currently have a support for this, but there are some out there), you'll want to convert the messages that will be produced to `Kafka` from the "microservice" to a new topic where the messages will have a given schema. This is pretty simple to do with `ksqlDB`.
 
 1. Create a new stream for the transactions received from the "microservice".
 
@@ -338,19 +340,19 @@ Since the data from our nodejs "microservice" won't have a schema (the `node-rdk
     `transaction_id` VARCHAR,
     `card_number` VARCHAR,
     `transaction_amount` INTEGER,
-    `transaction_time` VARCHAR
-   ) WITH (kafka_topic='express.bank.transactions', value_format='JSON');
+    `transaction_time` VARCHAR)
+    WITH (kafka_topic='express.bank.transactions', value_format='JSON');
    ```
 
 1. Verify the `express_bank_transactions` stream is populated correctly and then hit **Stop**.
    ```sql
    SELECT * FROM express_bank_transactions EMIT CHANGES;
    ```
-1. Create another stream by selecting the previous one and specify the output stream's value format.
+1. Create another stream by reading from `express_bank_transactions` and specifying the output stream's value format.
    ```sql
    CREATE STREAM jdbc_bank_transactions WITH (KAFKA_TOPIC='jdbc.bank.transactions', PARTITIONS=6, REPLICAS=3, VALUE_FORMAT='AVRO') AS
-    SELECT `key`, `transaction_id`,`card_number`, `transaction_amount`, `transaction_time`
-    FROM express_bank_transactions
+      SELECT `key`, `transaction_id`,`card_number`, `transaction_amount`, `transaction_time`
+      FROM express_bank_transactions
    EMIT CHANGES;
    ```
 1. Verify the `jdbc_bank_transactions` stream is populated correctly and then hit **Stop**.
@@ -383,9 +385,11 @@ In this final step you'll deploy the third version of the web application which 
      kubectl delete -f k8s/webapp-deployment-mf2.yaml
      ```
    - Create the web application deployment for "mf3".
-     `bash kubectl create -f k8s/webapp-deployment-mf3.yaml `
+     ```bash
+     kubectl create -f k8s/webapp-deployment-mf3.yaml
+     ```
 
-   > **Note**: If you aren't using `Kubernetes` open a new `Terminal` window and navigate to `webapp-mf2` and run `npm stop`. Then go to `webapp-mf3` and run `npm start`. The web browser should automatically refresh with the updated version of the front end application.
+   > **Note**: If you aren't using `Kubernetes` open a new `Terminal` window and navigate to `webapp-mf2` directory and run `npm stop`. Then go to `webapp-mf3` directory and run `npm start`. The web browser should automatically refresh with the updated version of the front end application.
 
 1. (Optional for extra effect) Delete the "monolith".
 
@@ -403,11 +407,11 @@ In this final step you'll deploy the third version of the web application which 
 ## End of Application Modernization
 
 If you followed the steps closely, and everything went as planned, you will have migrated a simple module of a "monolith" into its own "microservice" using the Stangler Fig pattern.
-In real world this process is much more tedious and there are more considerations to take into account, but the basic principles should be consistent.
+In the real world this process is much more tedious and there are more considerations to take into account, but the basic principles should be consistent.
 
 ## Building new use cases with Confluent Cloud and ksqlDB
 
-Now that you have set your data in motion with Confluent Cloud, you can build real-time applications which would have been nearly impossible before. For example, in order to be able to detect an unusual activity on a customer's credit card we need to have real-time access to transactions and each customer's spending habits. Let's leverage the Detect Unusual Credit Card Activity [recipe](https://developer.confluent.io/tutorials/credit-card-activity/confluent.html) to build this capability with Confluent Cloud and ksqlDB.
+Now that you have set your data in motion with Confluent Cloud, you can build real-time applications which would have been impossible before. For example, in order to be able to detect an unusual activity on a customer's credit card we need to have real-time access to transactions and each customer's spending habits. Let's leverage the Detect Unusual Credit Card Activity [recipe](https://developer.confluent.io/tutorials/credit-card-activity/confluent.html) to build this capability with Confluent Cloud and `ksqlDB`.
 
 1. Create customer stream from `postgres.bank.customers`.
 
@@ -462,13 +466,13 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE fd_cust_acct WITH (KAFKA_TOPIC = 'FD_customer_account', KEY_FORMAT='JSON',VALUE_FORMAT='AVRO') AS
    SELECT
-    C.CUSTOMER_ID AS CUSTOMER_ID,
-    C.FIRST_NAME + ' ' + C.LAST_NAME AS FULL_NAME,
-    C.PHONE_NUMBER,
-    C.EMAIL_ADDRESS,
-    A.ACCOUNT_ID,
-    A.CARD_NUMBER,
-    A.AVG_SPEND
+      C.CUSTOMER_ID AS CUSTOMER_ID,
+      C.FIRST_NAME + ' ' + C.LAST_NAME AS FULL_NAME,
+      C.PHONE_NUMBER,
+      C.EMAIL_ADDRESS,
+      A.ACCOUNT_ID,
+      A.CARD_NUMBER,
+      A.AVG_SPEND
    FROM fd_accounts A
    INNER JOIN fd_customers C
    ON A.CUSTOMER_ID = C.CUSTOMER_ID;
@@ -480,10 +484,10 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
 1. We need to rekey the `jdbc_bank_transactions` so the `card_number` is the primary key.
    ```sql
    CREATE STREAM jdbc_bank_transactions_rekeyed
-   WITH (KAFKA_TOPIC='jdbc_bank_transactions_rekeyed',PARTITIONS=6, REPLICAS=3, VALUE_FORMAT='AVRO')
-    AS SELECT `card_number` as card_number, `transaction_id` as transaction_id, `transaction_amount` as transaction_amount, `transaction_time` as transaction_time
-    FROM jdbc_bank_transactions
-    PARTITION BY `card_number`
+   WITH (KAFKA_TOPIC='jdbc_bank_transactions_rekeyed',PARTITIONS=6, REPLICAS=3, VALUE_FORMAT='AVRO') AS
+      SELECT `card_number` as card_number, `transaction_id` as transaction_id, `transaction_amount` as transaction_amount, `transaction_time` as transaction_time
+      FROM jdbc_bank_transactions
+      PARTITION BY `card_number`
    EMIT CHANGES;
    ```
 1. Verify the `jdbc_bank_transactions_rekeyed` stream is populated correctly and then hit **Stop**.
@@ -512,15 +516,15 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE fd_possible_stolen_card WITH (KAFKA_TOPIC = 'FD_possible_stolen_card', KEY_FORMAT = 'JSON', VALUE_FORMAT='JSON') AS
    SELECT
-    TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
-    T.TRANSACTION_TIME,
-    T.CARD_NUMBER,
-    T.TRANSACTION_AMOUNT,
-    T.FULL_NAME,
-    T.EMAIL_ADDRESS,
-    T.PHONE_NUMBER,
-    SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
-    MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
+      TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
+      T.TRANSACTION_TIME,
+      T.CARD_NUMBER,
+      T.TRANSACTION_AMOUNT,
+      T.FULL_NAME,
+      T.EMAIL_ADDRESS,
+      T.PHONE_NUMBER,
+      SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
+      MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
    FROM fd_transactions_enriched T
    WINDOW TUMBLING (SIZE 2 HOURS)
    GROUP BY T.CARD_NUMBER, T.TRANSACTION_AMOUNT, T.FULL_NAME, T.EMAIL_ADDRESS, T.PHONE_NUMBER, T.TRANSACTION_TIME
@@ -545,7 +549,7 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    - card number: 5188-6083-8011-0307 amount: 561
      > **Note**: You can run `SELECT * FROM fd_cust_acct;` and review the `avg_spend` field for each `card_number` to better understand which activities are being flagged.
 
-1. The `fd_possible_stolen_card` is automatically updated to include a new suspicious acitivity. Which means there is no need for running a batch job to get the latest data. You can use the underlying Kafka topic as a source to downstream systems. For example, you can send this data to a a database such as MongoDB so these acitivies can be stored for auditing purposes. You can also stream this data to an Elasticsearch cluster and build a real-time dashboard. We will send the data to Elasticsearch.
+1. The `fd_possible_stolen_card` is automatically updated to include a new suspicious acitivity. Which means there is no need for running a batch job to get the latest data. You can use the underlying Kafka topic as a source for downstream systems. For example, you can send this data to a a database such as MongoDB so these acitivies can be stored for auditing purposes. You can also stream this data to an Elasticsearch cluster and build a real-time dashboard. We will send the data to Elasticsearch.
 1. The `fd_possible_stolen_card` has a composite key that includes `CARD_NUMBER`, `TRANSACTION_AMOUNT`, `FULL_NAME`, `EMAIL_ADDRESS`, `PHONE_NUMBER` and `TRANSACTION_TIME`. If we were to send this table to Elasticsearch these fields will be used as the `_id` field which is not aggregatable. Hence, we need to create a new table and add these fields as values too.
 1. Create a new table called `elastic_possible_stolen_card`.
    ```sql
@@ -582,11 +586,14 @@ Confluent gives you tools such as Stream Quality, Stream Catalog, and Stream Lin
 
 1. Navigate to https://confluent.cloud
 1. Use the left hand-side menu and click on **Stream Lineage**.
-Stream lineage provides a graphical UI of the end to end flow of your data. Both from the a bird’s eye view and drill-down magnification for answering questions like: - Where did data come from? - Where is it going? - Where, when, and how was it transformed?
-In the bird's eye view you see how one stream feeds into another one. As your pipeline grows and becomes more complex, you can use Stream lineage to debug and see where things go wrong and break.
-<div align="center">
-   <img src="images/stream_lineage.png" width =100% heigth=100%>
-</div>
+   Stream lineage provides a graphical UI of the end to end flow of your data. Both from the a bird’s eye view and drill-down magnification for answering questions like:
+   - Where did data come from?
+   - Where is it going?
+   - Where, when, and how was it transformed?
+   In the bird's eye view you see how one stream feeds into another one. As your pipeline grows and becomes more complex, you can use Stream lineage to debug and see where things go wrong and break.
+   <div align="center">
+      <img src="images/stream_lineage.png" width =100% heigth=100%>
+   </div>
 
 ### Build a real-time dashboard
 
@@ -596,7 +603,9 @@ In the bird's eye view you see how one stream feeds into another one. As your pi
 1. Wait until the cluster is up and running.
 1. Update the `connectors/elastic_sink.json` file to include the correct credentials.
 1. Launch a Elasticsearch sink connector.
-   `confluent connect create --config connectors/Elastic.json `
+   ```bash
+   confluent connect create --config connectors/elastic_sink.json
+   ```
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Elasticsearch connector is in `Running` state.
 1. Navigate to the Elastic website and verify `elastic_possible_stolen_card` exist.
