@@ -44,33 +44,6 @@ In order to successfully complete this demo you need to install few tools before
    cd demo-application-modernization
    ```
 
-1. Create a file to manage all the values you'll need through the setup.
-
-   ```bash
-   cat << EOF > env.sh
-   # Confluent Creds
-   export BOOTSTRAP_SERVERS="<replace>"
-   export CLIENT_KEY="<replace>"
-   export CLIENT_SECRET="<replace>"
-   export SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username='$CLIENT_KEY' password='$CLIENT_SECRET';"
-   export SCHEMA_REGISTRY_API_KEY="<replace>"
-   export SCHEMA_REGISTRY_API_SECRET="<replace>"
-   export SCHEMA_REGISTRY_URL="<replace>"
-   export SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO="$SCHEMA_REGISTRY_API_KEY:$SCHEMA_REGISTRY_API_SECRET"
-   export KSQLDB_API_KEY="<replace>"
-   export KSQLDB_API_SECRET="<replace>"
-   export KSQLDB_APP_ENDPOINT="<replace>"
-
-   # AWS Creds for TF
-   export AWS_ACCESS_KEY_ID="<replace>"
-   export AWS_SECRET_ACCESS_KEY="<replace>"
-   export AWS_DEFAULT_REGION="us-east-2" # You can change this, but make sure it's consistent
-
-   EOF
-   ```
-
-   > **Note:** _Run `source env.sh` at any time to update these values in your terminal session. Do NOT commit this file to a GitHub repo._
-
 1. Open a `Terminal` window and run the following commands to set up your Confluent Cloud infrastructure.
 
 1. Log in to your cluster using the `confluent login` command using a Confluent Cloud user account.
@@ -434,7 +407,7 @@ In real world this process is much more tedious and there are more consideration
 
 ## Building new use cases with Confluent Cloud and ksqlDB
 
-Now that you have set your data in motion with Confluent Cloud, you can build real-time applications which would have been nearly impossible before. For example, in order to be able to detect an unusual activity on a customer's credit card we need to have real-time access to transactions and their spending habits. Let's leverage the Detect Unusual Credit Card Activity [recipe](https://developer.confluent.io/tutorials/credit-card-activity/confluent.html) to build this capability with Confluent Cloud and ksqlDB.
+Now that you have set your data in motion with Confluent Cloud, you can build real-time applications which would have been nearly impossible before. For example, in order to be able to detect an unusual activity on a customer's credit card we need to have real-time access to transactions and each customer's spending habits. Let's leverage the Detect Unusual Credit Card Activity [recipe](https://developer.confluent.io/tutorials/credit-card-activity/confluent.html) to build this capability with Confluent Cloud and ksqlDB.
 
 1. Create customer stream from `postgres.bank.customers`.
 
@@ -623,7 +596,7 @@ In the bird's eye view you see how one stream feeds into another one. As your pi
 1. Wait until the cluster is up and running.
 1. Update the `connectors/elastic_sink.json` file to include the correct credentials.
 1. Launch a Elasticsearch sink connector.
-   `bash confluent connect create --config connectors/Elastic.json `
+   `confluent connect create --config connectors/Elastic.json `
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Elasticsearch connector is in `Running` state.
 1. Navigate to the Elastic website and verify `elastic_possible_stolen_card` exist.
