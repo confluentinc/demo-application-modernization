@@ -596,7 +596,7 @@ In the bird's eye view you see how one stream feeds into another one. As your pi
 1. Wait until the cluster is up and running.
 1. Update the `connectors/elastic_sink.json` file to include the correct credentials.
 1. Launch a Elasticsearch sink connector.
-   `bash confluent connect create --config connectors/Elastic.json `
+   `confluent connect create --config connectors/Elastic.json `
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Elasticsearch connector is in `Running` state.
 1. Navigate to the Elastic website and verify `elastic_possible_stolen_card` exist.
