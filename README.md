@@ -452,10 +452,10 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE fd_customers WITH (FORMAT='AVRO') AS
     SELECT customer_id AS customer_id,
-    LATEST_BY_OFFSET(first_name) AS first_name,
-    LATEST_BY_OFFSET(last_name) AS last_name,
-    LATEST_BY_OFFSET(phone_number) AS phone_number,
-    LATEST_BY_OFFSET(email_address) AS email_address
+        LATEST_BY_OFFSET(first_name) AS first_name,
+        LATEST_BY_OFFSET(last_name) AS last_name,
+        LATEST_BY_OFFSET(phone_number) AS phone_number,
+        LATEST_BY_OFFSET(email_address) AS email_address
     FROM fd_cust_raw_stream
     GROUP BY customer_id;
    ```
@@ -475,9 +475,9 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE fd_accounts WITH (FORMAT='AVRO') AS
     SELECT card_number AS card_number,
-    LATEST_BY_OFFSET(account_id) AS account_id,
-    LATEST_BY_OFFSET(customer_id) AS customer_id,
-    LATEST_BY_OFFSET(avg_spend) AS avg_spend
+        LATEST_BY_OFFSET(account_id) AS account_id,
+        LATEST_BY_OFFSET(customer_id) AS customer_id,
+        LATEST_BY_OFFSET(avg_spend) AS avg_spend
     FROM fd_acct_raw_stream
     GROUP BY card_number;
    ```
@@ -489,13 +489,13 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE fd_cust_acct WITH (KAFKA_TOPIC = 'FD_customer_account', KEY_FORMAT='JSON',VALUE_FORMAT='AVRO') AS
    SELECT
-   C.CUSTOMER_ID AS CUSTOMER_ID,
-   C.FIRST_NAME + ' ' + C.LAST_NAME AS FULL_NAME,
-   C.PHONE_NUMBER,
-   C.EMAIL_ADDRESS,
-   A.ACCOUNT_ID,
-   A.CARD_NUMBER,
-   A.AVG_SPEND
+    C.CUSTOMER_ID AS CUSTOMER_ID,
+    C.FIRST_NAME + ' ' + C.LAST_NAME AS FULL_NAME,
+    C.PHONE_NUMBER,
+    C.EMAIL_ADDRESS,
+    A.ACCOUNT_ID,
+    A.CARD_NUMBER,
+    A.AVG_SPEND
    FROM fd_accounts A
    INNER JOIN fd_customers C
    ON A.CUSTOMER_ID = C.CUSTOMER_ID;
@@ -522,14 +522,14 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE STREAM fd_transactions_enriched WITH (KAFKA_TOPIC = 'transactions_enriched' , KEY_FORMAT = 'JSON', VALUE_FORMAT='AVRO') AS
     SELECT
-    T.CARD_NUMBER AS CARD_NUMBER,
-    T.TRANSACTION_ID,
-    T.TRANSACTION_AMOUNT,
-    T.TRANSACTION_TIME,
-    C.FULL_NAME,
-    C.PHONE_NUMBER,
-    C.EMAIL_ADDRESS,
-    C.AVG_SPEND
+        T.CARD_NUMBER AS CARD_NUMBER,
+        T.TRANSACTION_ID,
+        T.TRANSACTION_AMOUNT,
+        T.TRANSACTION_TIME,
+        C.FULL_NAME,
+        C.PHONE_NUMBER,
+        C.EMAIL_ADDRESS,
+        C.AVG_SPEND
     FROM jdbc_bank_transactions_rekeyed T
     INNER JOIN fd_cust_acct C
     ON C.CARD_NUMBER = T.CARD_NUMBER;
@@ -539,15 +539,15 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE fd_possible_stolen_card WITH (KAFKA_TOPIC = 'FD_possible_stolen_card', KEY_FORMAT = 'JSON', VALUE_FORMAT='JSON') AS
    SELECT
-   TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
-   T.TRANSACTION_TIME,
-   T.CARD_NUMBER,
-   T.TRANSACTION_AMOUNT,
-   T.FULL_NAME,
-   T.EMAIL_ADDRESS,
-   T.PHONE_NUMBER,
-   SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
-   MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
+    TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
+    T.TRANSACTION_TIME,
+    T.CARD_NUMBER,
+    T.TRANSACTION_AMOUNT,
+    T.FULL_NAME,
+    T.EMAIL_ADDRESS,
+    T.PHONE_NUMBER,
+    SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
+    MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
    FROM fd_transactions_enriched T
    WINDOW TUMBLING (SIZE 2 HOURS)
    GROUP BY T.CARD_NUMBER, T.TRANSACTION_AMOUNT, T.FULL_NAME, T.EMAIL_ADDRESS, T.PHONE_NUMBER, T.TRANSACTION_TIME
@@ -578,21 +578,21 @@ Now that you have set your data in motion with Confluent Cloud, you can build re
    ```sql
    CREATE TABLE elastic_possible_stolen_card WITH (KAFKA_TOPIC = 'elastic_possible_stolen_card', KEY_FORMAT = 'JSON', VALUE_FORMAT='JSON') AS
     SELECT
-    TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
-    T.TRANSACTION_TIME,
-    T.CARD_NUMBER,
-    T.TRANSACTION_AMOUNT,
-    T.FULL_NAME,
-    T.EMAIL_ADDRESS,
-    T.PHONE_NUMBER,
-    AS_VALUE(T.TRANSACTION_TIME) AS TRANSACTION_TIME_VALUE,
-    AS_VALUE(T.CARD_NUMBER) AS CARD_NUMBER_VALUE,
-    AS_VALUE(T.TRANSACTION_AMOUNT) AS TRANSACTION_AMOUNT_VALUE,
-    AS_VALUE(T.FULL_NAME) AS FULL_NAME_VALUE,
-    AS_VALUE(T.EMAIL_ADDRESS) AS EMAIL_ADDRESS_VALUE,
-    AS_VALUE(T.PHONE_NUMBER) AS PHONE_NUMBER_VALUE,
-    SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
-    MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
+        TIMESTAMPTOSTRING(WINDOWSTART, 'yyyy-MM-dd HH:mm:ss') AS WINDOW_START,
+        T.TRANSACTION_TIME,
+        T.CARD_NUMBER,
+        T.TRANSACTION_AMOUNT,
+        T.FULL_NAME,
+        T.EMAIL_ADDRESS,
+        T.PHONE_NUMBER,
+        AS_VALUE(T.TRANSACTION_TIME) AS TRANSACTION_TIME_VALUE,
+        AS_VALUE(T.CARD_NUMBER) AS CARD_NUMBER_VALUE,
+        AS_VALUE(T.TRANSACTION_AMOUNT) AS TRANSACTION_AMOUNT_VALUE,
+        AS_VALUE(T.FULL_NAME) AS FULL_NAME_VALUE,
+        AS_VALUE(T.EMAIL_ADDRESS) AS EMAIL_ADDRESS_VALUE,
+        AS_VALUE(T.PHONE_NUMBER) AS PHONE_NUMBER_VALUE,
+        SUM(T.TRANSACTION_AMOUNT) AS TOTAL_CREDIT_SPEND,
+        MAX(T.AVG_SPEND) AS AVG_CREDIT_SPEND
     FROM fd_transactions_enriched T
     WINDOW TUMBLING (SIZE 2 HOURS)
     GROUP BY T.CARD_NUMBER, T.TRANSACTION_AMOUNT, T.FULL_NAME, T.EMAIL_ADDRESS, T.PHONE_NUMBER, T.TRANSACTION_TIME
