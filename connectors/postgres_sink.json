@@ -1,0 +1,25 @@
+{
+  "name": "PostgresSinkConnector_0",
+  "config": {
+    "topics": "jdbc.bank.transactions",
+    "input.data.format": "AVRO",
+    "connector.class": "PostgresSink",
+    "name": "PostgresSinkConnector_0",
+    "kafka.auth.mode": "KAFKA_API_KEY",
+    "kafka.api.key": "<KAFKA_API_KEY>",
+    "kafka.api.secret": "<KAFKA_API_SECRET>",
+    "connection.host": "<EC2_IP_FROM_TERRAFORM>",
+    "connection.port": "5432",
+    "connection.user": "postgres",
+    "connection.password": "app-mod-c0nflu3nt!",
+    "db.name": "postgres",
+    "ssl.mode": "prefer",
+    "insert.mode": "INSERT",
+    "table.name.format": "bank.transactions",
+    "pk.mode": "record_value",
+    "pk.fields": "transaction_id",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "tasks.max": "1"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "ElasticsearchSinkConnector_0",
+  "config": {
+    "topics": "elastic_possible_stolen_card",
+    "input.data.format": "JSON",
+    "connector.class": "ElasticsearchSink",
+    "name": "ElasticsearchSinkConnector_0",
+    "kafka.auth.mode": "KAFKA_API_KEY",
+    "kafka.api.key": "<KAFKA_API_KEY>",
+    "kafka.api.secret": "<KAFKA_API_SECRET>",
+    "connection.url": "<ELASTIC_URL>",
+    "connection.username": "elastic",
+    "connection.password": "<ELASTIC_PASSWORD>",
+    "key.ignore": "true",
+    "schema.ignore": "true",
+    "batch.size": "1",
+    "tasks.max": "1"
+  }
+}

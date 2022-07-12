@@ -1,0 +1,20 @@
+{
+  "name": "PostgresCdcSourceConnector_0",
+  "config": {
+    "connector.class": "PostgresCdcSource",
+    "name": "PostgresCdcSourceConnector_0",
+    "kafka.auth.mode": "KAFKA_API_KEY",
+    "kafka.api.key": "<KAFKA_API_KEY>",
+    "kafka.api.secret": "<KAFKA_API_SECRET>",
+    "database.hostname": "<EC2_IP_FROM_TERRAFORM>",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "app-mod-c0nflu3nt!",
+    "database.dbname": "postgres",
+    "database.server.name": "postgres",
+    "table.include.list": "bank.customers, bank.accounts, bank.transactions",
+    "output.data.format": "AVRO",
+    "after.state.only": "true",
+    "tasks.max": "1"
+  }
+}
