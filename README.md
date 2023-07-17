@@ -105,10 +105,14 @@ In order to successfully complete this demo you need to install few tools before
    confluent api-key list --resource <KAFKA_CLUSTER_ID>
    ```
 
+1. To find your user ID run the following command
+   ```bash
+   confluent iam user list
+   ```
 1. Create a ksqlDB cluster by running the following command.
 
    ```bash
-   confluent ksql cluster create -o json ksqlDB_app1 --csu 1 --api-key <KAFKA_API_KEY> --api-secret <KAFKA_API_SECRET> --cluster <KAFKA_CLUSTER_ID>
+   confluent ksql cluster create ksqlDB_app1 --csu 1 --credential-identity "<USER_ID>" --cluster KAFKA_CLUSTER_ID -o json
    ```
 
 1. Wait until the ksqlDB cluster's status is changed from `Provisioning` to `Running`.
@@ -129,7 +133,7 @@ In order to successfully complete this demo you need to install few tools before
 
 ### Build the cloud infrastructure
 
-> **Note**: If your organization uses `gimme-aws-creds` for authentication purposes, run `gimme-aws-creds` command before calling `Terraform`.
+1. Log into AWS console.
 
 1. Navigate to the repo's `Terraform` directory.
    ```bash
@@ -262,7 +266,7 @@ Now that you have deployed all the components for your "monolith", you can go to
 1. Update the `connectors/postgres_source.json` file to include the correct credentials.
 1. Launch a Postgres source connector to connect your database with Confluent Cloud.
    ```bash
-   confluent connect create --config connectors/postgres_source.json
+   confluent connect cluster create --config-file connectors/postgres_source.json
    ```
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Postgres connector is in `Running` state.
@@ -375,7 +379,7 @@ Similarly to how you deployed the Debezium Postgres CDC Source Connector earlier
 1. Update the `connectors/postgres_sink.json` file to include the correct credentials.
 1. Launch a Postgres sink connector.
    ```bash
-   confluent connect create --config connectors/postgres_sink.json
+   confluent connect cluster create --config-file connectors/postgres_sink.json
    ```
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Postgres Sink connector is in `Running` state.
@@ -610,7 +614,7 @@ Confluent gives you tools such as Stream Quality, Stream Catalog, and Stream Lin
 1. Update the `connectors/elastic_sink.json` file to include the correct credentials.
 1. Launch a Elasticsearch sink connector.
    ```bash
-   confluent connect create --config connectors/elastic_sink.json
+   confluent connect cluster create --config-file connectors/elastic_sink.json
    ```
    > **Note**: You can deploy this connector through Confluent Cloud web UI as well.
 1. Wait until Elasticsearch connector is in `Running` state.
