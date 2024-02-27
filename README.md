@@ -623,3 +623,7 @@ Confluent gives you tools such as Stream Quality, Stream Catalog, and Stream Lin
 <div align="center">
     <img src="images/elastic_dashboard.png" width=100% height=100%>
 </div>
+
+## Related content
+
+For more information about about Confluent Cloud, see [the documentation](https://docs.confluent.io/cloud/current/overview.html).
